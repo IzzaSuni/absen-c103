@@ -6,7 +6,8 @@ export class TeleController {
   constructor(private botService: TeleService) {}
   @Get()
   getBotDialog(@Res() res) {
-    this.botService.botService();
-    res.status(HttpStatus.OK).send('Bot service started');
+    // this.botService.botService();
+    // res.status(HttpStatus.OK).send('Bot service started');
+    return 'halo geng';
   }
 }
