@@ -7,7 +7,6 @@ export class TeleController {
   @Get()
   getBotDialog(@Res() res) {
     this.botService.botService();
-    console.log("halo");
     res.status(HttpStatus.OK).send('Bot service started');
   }
 }

@@ -33,14 +33,6 @@ export class AlteGateway implements OnModuleInit {
     @MessageBody()
     body: UserParam,
   ) {
-    const { code_tag } = body;
-    const user = await this.user.findOne({ code_tag: code_tag }).exec();
-    if (!user) return;
-    const newRecord = new this.record({
-      record_time: moment().format('DD MMMM YYYY, hh:mm:ss'),
-    });
-    user?.record_time.push(newRecord);
-    await user.save();
-    await newRecord.save();
+    return;
   }
 }

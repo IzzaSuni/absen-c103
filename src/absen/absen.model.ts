@@ -8,6 +8,7 @@ export const userSchema = new Mongoose.Schema({
 
 export const record = new Mongoose.Schema({
   record: { type: Date },
+  username: { type: String },
 });
 
 export interface User {
@@ -31,11 +32,14 @@ export class UserDto {
 //
 
 export interface Record {
-  record_time: object;
+  record_time: string;
+  username: string;
 }
 export type RecordParam = {
-  record_time: object;
+  record_time: string;
+  username: string;
 };
 export class RecordDto {
-  record_time: object;
+  record_time: string;
+  username: string;
 }

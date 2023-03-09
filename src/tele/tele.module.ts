@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TeleController } from './tele.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { record, userSchema } from 'src/absen/absen.model';
+
 import { TeleService } from './tele.service';
 
 @Module({
-  controllers: [TeleController],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'user', schema: userSchema },
+      { name: 'record', schema: record },
+    ]),
+  ],
   providers: [TeleService],
 })
 export class TeleModule {}
