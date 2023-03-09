@@ -6,6 +6,7 @@ import { GatewayModule } from './gateway/gateway.module';
 import { TeleModule } from './tele/tele.module';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { record, userSchema } from './absen/absen.model';
+import { AbsenModule } from './absen/absen.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { record, userSchema } from './absen/absen.model';
     TelegrafModule.forRoot({
       token: '5666463743:AAHOKCSMmsxw2Z1Z0g1ut55W-JSxNjtGSFw',
     }),
+    AbsenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

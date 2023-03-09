@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { User, Record } from './absen/absen.model';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
 import * as moment from 'moment';
+import * as tmp from 'tmp';
+
 const months = [
   'january',
   'february',
@@ -70,24 +72,55 @@ export class AppService {
           .toLowerCase()
           .includes(selectedMonth.toLowerCase());
       });
-      console.log(allRecord);
       if (allRecord.length > 0) {
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Absensi');
-        const sheet = {};
-        months.forEach((month) => {
+        const sheet: any = {};
+        months.forEach((month, monthIndex) => {
           const findMonths = allRecord.filter(
-            (record, index) =>
-              index === new Date(record.record_time).getMonth(),
+            (record) => monthIndex === new Date(record.record_time).getMonth(),
           );
           if (findMonths.length > 0) sheet[month] = findMonths;
         });
-        allRecord.forEach((data) => {
+
+        Object.keys(sheet).forEach((month) => {
+          const worksheet = workbook.addWorksheet(month);
+          const data = sheet[month];
+          const rows = [];
+
+          data.forEach((row) => {
+            console.log(row);
+            delete row.__v;
+            rows.push([row.username, row.record_time]);
+          });
+          rows.unshift(['Username', 'Timestamp']);
           worksheet.addRow({
-            ...data,
+            ...rows,
           });
         });
-        return await workbook.xlsx.writeFile('sales-report.xlsx');
+        ctx.reply('File sedang dibuat harap tunggu...');
+        let File = await new Promise((resolve, reject) => {
+          tmp.file(
+            {
+              discarDescriptor: true,
+              prefix: 'Absensi C103',
+              postfix: '.xlsx',
+              mode: parseInt('0600', 8),
+            },
+            async (err, file) => {
+              if (err) throw new BadRequestException(err);
+
+              workbook.xlsx
+                .writeFile(file)
+                .then(() => resolve(file))
+                .catch((err) => {
+                  throw new BadRequestException(err);
+                });
+            },
+          );
+        });
+        ctx.reply('File sudah dibuat');
+
+        console.log(File);
       } else {
         return await ctx.reply('Maaf data kosong');
       }

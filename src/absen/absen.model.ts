@@ -7,7 +7,7 @@ export const userSchema = new Mongoose.Schema({
 });
 
 export const record = new Mongoose.Schema({
-  record: { type: Date },
+  record_time: { type: String },
   username: { type: String },
 });
 
