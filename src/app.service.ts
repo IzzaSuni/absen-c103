@@ -74,7 +74,7 @@ export class AppService {
       if (allRecord.length > 0) {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Absensi');
-        let sheet = {};
+        const sheet = {};
         months.forEach((month) => {
           const findMonths = allRecord.filter(
             (record, index) =>
