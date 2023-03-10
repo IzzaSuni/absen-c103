@@ -10,11 +10,9 @@ import { AbsenModule } from './absen/absen.module';
 
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: 'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority&directConnection=true',
-      }),
-    }),
+    MongooseModule.forRoot(
+      'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority&directConnection=true',
+    ),
     MongooseModule.forFeature([
       { name: 'user', schema: userSchema },
       { name: 'record', schema: record },
