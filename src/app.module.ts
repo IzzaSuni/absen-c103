@@ -12,7 +12,7 @@ import { AbsenModule } from './absen/absen.module';
   imports: [
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: 'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority',
+        uri: 'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority&directConnection=true',
       }),
     }),
     MongooseModule.forFeature([
