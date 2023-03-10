@@ -6,6 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import * as moment from 'moment';
 import { Model } from 'mongoose';
 import { Server } from 'socket.io';
 import { UserParam, Record, User } from 'src/absen/absen.model';
@@ -21,7 +22,8 @@ export class AlteGateway implements OnModuleInit {
   server: Server;
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket);
+      console.log(socket.id);
+      console.log('connected');
       const query = String(socket.handshake.query.secret);
       // if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
       //   return socket.disconnect(true);
@@ -37,8 +39,14 @@ export class AlteGateway implements OnModuleInit {
   ) {
     if (body.code_tag) {
       const user = this.user.findOne({ code_tag: body.code_tag });
-
+      const record = new this.record({
+        record_time: `${moment().format('DD MMMM YYYY, hh:mm:ss')}`,
+      });
+      (await user).record_time?.push(record);
+      (await record).save();
+      (await user).save();
+      return this.server.emit('berhasil absen');
     }
-    return;
+    return this.server.emit('user tidak ditemukan');
   }
 }
