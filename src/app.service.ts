@@ -78,7 +78,7 @@ export class AppService {
           [
             Markup.button.url(
               'AbsensiC103.xlsx',
-              `https://project-ali-production.up.railway.app/download.xlxs?secret=${secret}`,
+              `https://absensi-c103.up.railway.app/download.xlsx?secret=${secret}`,
             ),
           ],
         ]),
