@@ -11,7 +11,7 @@ import { AbsenModule } from './absen/absen.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority&directConnection=true',
+      'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority',
     ),
     MongooseModule.forFeature([
       { name: 'user', schema: userSchema },
