@@ -6,7 +6,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import * as moment from 'moment';
 import { Model } from 'mongoose';
 import { Server } from 'socket.io';
 import { UserParam, Record, User } from 'src/absen/absen.model';
@@ -22,6 +21,12 @@ export class AlteGateway implements OnModuleInit {
   server: Server;
   onModuleInit() {
     this.server.on('connection', (socket) => {
+      console.log(socket);
+      const query = String(socket.handshake.query.secret);
+      console.log(query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia');
+      if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
+        return socket.disconnect(true);
+      }
       console.log(socket.id);
       console.log('connected');
     });
@@ -31,8 +36,9 @@ export class AlteGateway implements OnModuleInit {
   @SubscribeMessage('absen')
   async onControlRelay(
     @MessageBody()
-    body: UserParam,
+    body: any,
   ) {
+    console.log(body);
     return;
   }
 }
