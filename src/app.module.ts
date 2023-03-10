@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GatewayModule } from './gateway/gateway.module';
 import { TeleModule } from './tele/tele.module';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { record, userSchema } from './absen/absen.model';
+import { record, secret, userSchema } from './absen/absen.model';
 import { AbsenModule } from './absen/absen.module';
 
 @Module({
@@ -16,6 +16,7 @@ import { AbsenModule } from './absen/absen.module';
     MongooseModule.forFeature([
       { name: 'user', schema: userSchema },
       { name: 'record', schema: record },
+      { name: 'secret', schema: secret },
     ]),
     GatewayModule,
     TeleModule,
@@ -23,6 +24,7 @@ import { AbsenModule } from './absen/absen.module';
       token: '5666463743:AAHOKCSMmsxw2Z1Z0g1ut55W-JSxNjtGSFw',
     }),
     AbsenModule,
+  
   ],
   controllers: [AppController],
   providers: [AppService],

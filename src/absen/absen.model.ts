@@ -11,6 +11,10 @@ export const record = new Mongoose.Schema({
   username: { type: String },
 });
 
+export const secret = new Mongoose.Schema({
+  secret: { type: String },
+});
+
 export interface User {
   code_tag: string;
   record_time: Array<object>;
@@ -42,4 +46,14 @@ export type RecordParam = {
 export class RecordDto {
   record_time: string;
   username: string;
+}
+
+export interface Secret {
+  secret: string;
+}
+export type SecretParam = {
+  secret: string;
+};
+export class SecretDto {
+  secret: string;
 }

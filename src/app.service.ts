@@ -1,12 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
-import { Context } from 'telegraf';
-import { User, Record } from './absen/absen.model';
-import * as ExcelJS from 'exceljs';
+import { Context, Markup } from 'telegraf';
+import { User, Record, Secret } from './absen/absen.model';
 import * as moment from 'moment';
-import * as tmp from 'tmp';
+import generateSecret from './utils';
 
 const months = [
   'january',
@@ -29,6 +28,7 @@ export class AppService {
   constructor(
     @InjectModel('user') private readonly user: Model<User>,
     @InjectModel('record') private readonly record: Model<Record>,
+    @InjectModel('secret') private readonly secrets: Model<Secret>,
   ) {}
 
   getData(): { message: string } {
@@ -53,77 +53,38 @@ export class AppService {
 
   @Command(['rekap', ...months])
   async hearsHi(@Ctx() ctx: any) {
-    console.log(ctx);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const messageFromBot = ctx.update?.message?.text.toString().toLowerCase();
     if (messageFromBot === '/rekap') {
-      let msg = `Rekap absensi C103 tahun ${moment().format(
-        'YYYY',
-      )}, mohon untuk pilih bulan\n\n`;
-      months.map(async (month) => (msg = msg + `/${month}\n\n`));
+      const msg = `Rekap absensi C103 tahun ${moment().format('YYYY')}`;
       await ctx.reply(msg);
-    } else if (
-      months.includes(messageFromBot.substring(1, messageFromBot.length))
-    ) {
-      const selectedMonth = messageFromBot?.substring(1, messageFromBot.length);
-
-      const allRecord = await this.record.find().exec();
-      allRecord.filter((record) => {
-        return record.record_time
-          .toLowerCase()
-          .includes(selectedMonth.toLowerCase());
-      });
-      if (allRecord.length > 0) {
-        const workbook = new ExcelJS.Workbook();
-        const sheet: any = {};
-        months.forEach((month, monthIndex) => {
-          const findMonths = allRecord.filter(
-            (record) => monthIndex === new Date(record.record_time).getMonth(),
-          );
-          if (findMonths.length > 0) sheet[month] = findMonths;
-        });
-
-        Object.keys(sheet).forEach((month) => {
-          const worksheet = workbook.addWorksheet(month);
-          const data = sheet[month];
-          const rows = [];
-
-          data.forEach((row) => {
-            console.log(row);
-            delete row.__v;
-            rows.push([row.username, row.record_time]);
-          });
-          rows.unshift(['Username', 'Timestamp']);
-          worksheet.addRow({
-            ...rows,
-          });
-        });
-        ctx.reply('File sedang dibuat harap tunggu...');
-        let File = await new Promise((resolve, reject) => {
-          tmp.file(
-            {
-              discarDescriptor: true,
-              prefix: 'Absensi C103',
-              postfix: '.xlsx',
-              mode: parseInt('0600', 8),
-            },
-            async (err, file) => {
-              if (err) throw new BadRequestException(err);
-
-              workbook.xlsx
-                .writeFile(file)
-                .then(() => resolve(file))
-                .catch((err) => {
-                  throw new BadRequestException(err);
-                });
-            },
-          );
-        });
-        ctx.reply('File sudah dibuat');
-
-        console.log(File);
-      } else {
-        return await ctx.reply('Maaf data kosong');
-      }
+    }
+    const selectedMonth = messageFromBot?.substring(1, messageFromBot.length);
+    const allRecord = await this.record.find().exec();
+    allRecord.filter((record) => {
+      return record.record_time
+        .toLowerCase()
+        .includes(selectedMonth.toLowerCase());
+    });
+    if (allRecord.length > 0) {
+      const secret = generateSecret();
+      const findCurrentStoredSecret = await this.secrets.findOne();
+      //assign new secret
+      findCurrentStoredSecret.secret = secret;
+      await findCurrentStoredSecret.save();
+      ctx.replyWithHTML(
+        'Silahkan download file berikut',
+        Markup.inlineKeyboard([
+          [
+            Markup.button.url(
+              'AbsensiC103.xlsx',
+              `http://192.168.1.3:3000/download.xlsx?secret=${secret}`,
+            ),
+          ],
+        ]),
+      );
+    } else {
+      return await ctx.reply('Maaf data kosong');
     }
   }
 }

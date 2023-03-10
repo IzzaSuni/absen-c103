@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AbsenController } from './absen.controller';
-import { record, userSchema } from './absen.model';
+import { record, secret, userSchema } from './absen.model';
 
 @Module({
   controllers: [AbsenController],
@@ -9,6 +9,7 @@ import { record, userSchema } from './absen.model';
     MongooseModule.forFeature([
       { name: 'user', schema: userSchema },
       { name: 'record', schema: record },
+      { name: 'secret', schema: secret },
     ]),
   ],
 })
