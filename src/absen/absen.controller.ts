@@ -71,8 +71,8 @@ export class AbsenController {
   async getUser(@Res() res: any, @Query('secret') secretFromQuery: string) {
     moment.locale('id');
     const currentStoredSecret = await this.secret.findOne();
-    if (currentStoredSecret.secret !== secretFromQuery)
-      return 'Hadeh cuy gabole';
+    // if (currentStoredSecret.secret !== secretFromQuery)
+    //   return 'Hadeh cuy gabole';
     currentStoredSecret.secret = generateSecret();
     await currentStoredSecret.save();
     const allRecord = await this.record.find().exec();

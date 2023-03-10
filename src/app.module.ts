@@ -10,9 +10,11 @@ import { AbsenModule } from './absen/absen.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority',
-    ),
+    MongooseModule.forRootAsync({
+      useFactory: () => ({
+        uri: 'mongodb+srv://absen-masuk:absen-masuk@cluster0.klx1tw2.mongodb.net/Cluster0?retryWrites=true&w=majority',
+      }),
+    }),
     MongooseModule.forFeature([
       { name: 'user', schema: userSchema },
       { name: 'record', schema: record },
@@ -24,7 +26,6 @@ import { AbsenModule } from './absen/absen.module';
       token: '5666463743:AAHOKCSMmsxw2Z1Z0g1ut55W-JSxNjtGSFw',
     }),
     AbsenModule,
-  
   ],
   controllers: [AppController],
   providers: [AppService],
