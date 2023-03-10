@@ -23,12 +23,9 @@ export class AlteGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       console.log(socket);
       const query = String(socket.handshake.query.secret);
-      console.log(query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia');
       if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
         return socket.disconnect(true);
       }
-      console.log(socket.id);
-      console.log('connected');
     });
   }
 
