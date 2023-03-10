@@ -23,9 +23,9 @@ export class AlteGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       console.log(socket);
       const query = String(socket.handshake.query.secret);
-      if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
-        return socket.disconnect(true);
-      }
+      // if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
+      //   return socket.disconnect(true);
+      // }
     });
   }
 
@@ -35,7 +35,10 @@ export class AlteGateway implements OnModuleInit {
     @MessageBody()
     body: any,
   ) {
-    console.log(body);
+    if (body.code_tag) {
+      const user = this.user.findOne({ code_tag: body.code_tag });
+
+    }
     return;
   }
 }
