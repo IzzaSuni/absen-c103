@@ -1,4 +1,5 @@
-import { OnModuleInit } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   MessageBody,
@@ -6,28 +7,29 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import axios from 'axios';
 import * as moment from 'moment';
 import { Model } from 'mongoose';
-import { Ctx } from 'nestjs-telegraf';
 import { Server } from 'socket.io';
-import { UserParam, Record, User } from 'src/absen/absen.model';
-import { Context } from 'telegraf';
+import { Chat, Record, User } from 'src/absen/absen.model';
 moment.locale('id');
+
 @WebSocketGateway({ cors: true })
+@Injectable()
 export class AlteGateway implements OnModuleInit {
   constructor(
     @InjectModel('user') private readonly user: Model<User>,
     @InjectModel('record') private readonly record: Model<Record>,
+    @InjectModel('chat') private readonly Chat: Model<Chat>,
+
+    private readonly httpService: HttpService,
   ) {}
 
   @WebSocketServer()
   server: Server;
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      const query = String(socket.handshake.query.secret);
-      if (query !== 'secret-asjkndaksdkas ckwndi232i3ubKNIASNAKSDoia') {
-        return socket.disconnect(true);
-      }
+      console.log('connecteds');
     });
   }
 
@@ -36,33 +38,42 @@ export class AlteGateway implements OnModuleInit {
   async onControlRelay(
     @MessageBody()
     body: any,
-    @Ctx() ctx: Context,
   ) {
-    if (body.code_tag) {
-      const user = await this.user.findOne({ code_tag: body.code_tag });
-      const record = new this.record({
-        record_time: `${moment().format('DD MMMM YYYY, hh:mm:ss')}`,
-        username: user.username,
-      });
-      user.record_time?.push(record);
-      await record.save();
-      await user.save();
+    let message = '';
+    if (body?.code_tag) {
+      const user = await this.user.findOne({ code_tag: body?.code_tag });
+      if (!user) {
+        message = `Intruder LOG - Tanggal: ${moment().format(
+          'DD MMMM YYYY',
+        )} - Pukul: ${moment().format('hh:mm:ss')} WIB`;
+      } else {
+        const record = new this.record({
+          record_time: `${moment().format('DD MMMM YYYY, hh:mm:ss')}`,
+          username: user?.username,
+        });
+        user?.record_time?.push(record);
+        await record.save();
+        await user.save();
 
-      const message = `Absen LOG\nNama: ${user.username}\nCode: ${
-        body.code_tag
-      }\nTanggal: ${moment().format(
-        'DDDD MMMM YYYY',
-      )}\nPukul: ${moment().format('hh:mm:ss')}`;
-
-      ctx.reply(message);
-      return this.server.emit(message);
+        message = `Absen LOG - Nama: ${
+          user.username
+        } - Tanggal: ${moment().format(
+          'DD MMMM YYYY',
+        )} - Pukul: ${moment().format('hh:mm:ss')} WIB`;
+      }
+    } else {
+      message = `Intruder LOG - Tanggal: ${moment().format(
+        'DD MMMM YYYY',
+      )} - Pukul: ${moment().format('hh:mm:ss')} WIB`;
     }
-    const message = `Intruder LOG\nCode: ${
-      body.code_tag
-    }\nTanggal: ${moment().format('DDDD MMMM YYYY')}\nPukul: ${moment().format(
-      'hh:mm:ss',
-    )}`;
-    ctx.reply(message);
+
+    const users = await this.Chat.find().exec();
+    users.map(async ({ id }) => {
+      await axios.get(
+        `https://api.telegram.org/bot5666463743:AAHOKCSMmsxw2Z1Z0g1ut55W-JSxNjtGSFw/sendMessage?text=${message}&chat_id=${id}`,
+      );
+    });
+
     return this.server.emit(message);
   }
 }

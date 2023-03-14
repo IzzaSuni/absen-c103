@@ -39,33 +39,6 @@ export class AbsenController {
     @InjectModel('secret') private readonly secret: Model<Secret>,
   ) {}
 
-  @Post('record')
-  async seedRecord(@Body() body: any) {
-    const { code_tag } = body;
-    moment.locale('id');
-    const user = await this.user.findOne({ code_tag: code_tag }).exec();
-    if (!user) return;
-    const newRecord = new this.record({
-      record_time: `${moment().format('DD MMMM YYYY, hh:mm:ss')}`,
-      username: user.username,
-    });
-    user?.record_time.push(newRecord);
-    await user.save();
-    await newRecord.save();
-    return newRecord;
-  }
-
-  @Post('user')
-  async seedUser(@Body() body: any) {
-    const newUser = new this.user({
-      username: body.username,
-      code_tag: body.code_tag,
-    });
-    await newUser.save();
-
-    return newUser;
-  }
-
   @Get('download.xlsx')
   @Header('Content-Type', 'text/xlsx')
   async getUser(@Res() res: any, @Query('secret') secretFromQuery: string) {

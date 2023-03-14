@@ -15,6 +15,15 @@ export const secret = new Mongoose.Schema({
   secret: { type: String },
 });
 
+export const chatId = new Mongoose.Schema({
+  id: { type: Number },
+  first_name: { type: String },
+});
+
+export interface Chat {
+  id: number;
+  first_name: string;
+}
 export interface User {
   code_tag: string;
   record_time: Array<object>;

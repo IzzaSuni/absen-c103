@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GatewayModule } from './gateway/gateway.module';
 import { TeleModule } from './tele/tele.module';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { record, secret, userSchema } from './absen/absen.model';
+import { chatId, record, secret, userSchema } from './absen/absen.model';
 import { AbsenModule } from './absen/absen.module';
 
 @Module({
@@ -17,6 +17,7 @@ import { AbsenModule } from './absen/absen.module';
       { name: 'user', schema: userSchema },
       { name: 'record', schema: record },
       { name: 'secret', schema: secret },
+      { name: 'chat', schema: chatId },
     ]),
     GatewayModule,
     TeleModule,
